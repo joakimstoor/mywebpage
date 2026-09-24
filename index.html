@@ -94,13 +94,21 @@
   .pcard .av { font-size: clamp(40px, 12vw, 52px); line-height: 1.1; }
   .pcard .nm { font-family: var(--display); font-weight: 800; font-size: clamp(19px, 5.6vw, 26px); line-height: 1.1; color: var(--pc); }
   .pcard .st { font-weight: 800; font-size: 16px; font-variant-numeric: tabular-nums; }
-  .pcard.wide { flex-direction: row; justify-content: center; gap: 14px; width: 100%; padding: 14px 18px; }
-  .pcard.wide .av { font-size: 46px; }
-  .pcard.wide .nm { font-size: 30px; }
-  .pcard.wide .st { font-size: 20px; }
+  .players.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #rivalSlot { display: flex; justify-content: center; }
+  .pcard.wide { flex-direction: row; gap: 12px; padding: 10px 20px 10px 12px; max-width: 100%; }
+  .duo { display: flex; }
+  .duo > span {
+    width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; font-size: 28px; line-height: 1;
+    background: var(--bub); border: 3px solid #fff; box-shadow: 0 2px 6px rgba(15, 30, 77, 0.2);
+  }
+  .duo > span + span { margin-left: -14px; }
+  .pcard.wide .txt { display: flex; flex-direction: column; align-items: flex-start; gap: 0; min-width: 0; }
+  .pcard.wide .nm { font-size: 22px; white-space: nowrap; }
+  .pcard.wide .st { font-size: 16px; }
   .team-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
   .team-total { font-family: var(--display); font-weight: 800; font-size: 24px; font-variant-numeric: tabular-nums; }
-  /* arena: kids vs Jocke */
+  /* arena: kids vs adults */
   .arena { border-radius: 26px; overflow: hidden; box-shadow: 0 6px 0 rgba(31, 42, 68, 0.18); background: #2563EB; }
   .side { display: flex; flex-direction: column; gap: 14px; padding: 22px; color: #fff; }
   .side.kids { background: linear-gradient(160deg, #C026D3 0%, #F0508A 45%, #FF7A45 100%); padding-bottom: 8px; }
@@ -237,7 +245,7 @@
       <button class="scorepill" id="scorePill" type="button" hidden aria-label="Se ställningen">
         <span class="sp-kids">Barnen <b id="spKids">0</b></span>
         <span class="sp-bolt">⚡</span>
-        <span class="sp-rival"><b id="spRival">0</b> Jocke</span>
+        <span class="sp-rival"><b id="spRival">0</b> Vuxna</span>
       </button>
       <button class="who" id="whoBtn" type="button" hidden aria-label="Byt spelare">
         <span class="av" id="whoAv">🦄</span><span id="whoName">Edda</span><small>byt</small>
@@ -360,7 +368,7 @@ const DATABASE_URL = "https://gangertabell-default-rtdb.europe-west1.firebasedat
     { name: "Edda",   emoji: "🦄", color: "#6E56F0", shade: "#4B36C4", pale: "#ECE8FF" },
     { name: "Ember",  emoji: "🐉", color: "#E4572E", shade: "#B53B18", pale: "#FFE6DC" },
     { name: "Olivia", emoji: "🌸", color: "#D6337F", shade: "#A71F5E", pale: "#FFE3F0" },
-    { name: "Jocke",  emoji: "🧑‍🏫", color: "#0E7C74", shade: "#095A54", pale: "#D9F2EF", rival: true },
+    { name: "Jocke",  label: "Jocke & Emilia", emoji: "🧑‍🏫🤾‍♀️", avatars: ["🧑‍🏫", "🤾‍♀️"], color: "#0E7C74", shade: "#095A54", pale: "#D9F2EF", rival: true },
   ];
   const EMOJIS = ["🎉","🥳","🌟","🦄","🌈","😄","🤩","🐱","🐶","🍭","🎈","💖","🐬","🦋","🍓","🚀","👑","🐼","🌻","😺","🏆","✨","🐸","🍦"];
   const FIELDS = ["stars", "ok", "bad", "games"];
@@ -439,23 +447,27 @@ const DATABASE_URL = "https://gangertabell-default-rtdb.europe-west1.firebasedat
       if (p.rival) rival += totals[p.name].stars; else team += totals[p.name].stars;
       const b = document.createElement("button");
       b.type = "button"; b.className = "pcard" + (p.rival ? " wide" : ""); b.style.setProperty("--pc", p.color);
-      b.innerHTML = '<span class="av">' + p.emoji + '</span><span class="nm">' + p.name + '</span><span class="st">⭐ ' + totals[p.name].stars + '</span>';
+      const stars = '<span class="st">⭐ ' + totals[p.name].stars + '</span>';
+      const nm = '<span class="nm">' + (p.label || p.name) + '</span>';
+      b.innerHTML = p.avatars
+        ? '<span class="duo">' + p.avatars.map((a, i) => '<span style="--bub:' + ["#D9F2EF", "#FFEBD1"][i % 2] + '">' + a + '</span>').join("") + '</span><span class="txt">' + nm + stars + '</span>'
+        : '<span class="av">' + p.emoji + '</span>' + nm + stars;
       b.addEventListener("click", () => choosePlayer(p));
       (p.rival ? slot : list).appendChild(b);
     });
     $("teamStars").textContent = team;
     const diff = team - rival;
     $("leadText").textContent = diff > 0 ? "Barnen leder med " + diff + " ⭐"
-      : diff < 0 ? "Jocke leder med " + (-diff) + " ⭐ – kom igen barn!"
+      : diff < 0 ? "De vuxna leder med " + (-diff) + " ⭐ – kom igen barn!"
       : "Oavgjort – vem tar ledningen?";
   }
   function choosePlayer(p) {
     player = p;
     const r = document.documentElement.style;
     r.setProperty("--accent", p.color); r.setProperty("--accent-shade", p.shade); r.setProperty("--accent-pale", p.pale);
-    $("whoAv").textContent = p.emoji; $("whoName").textContent = p.name; $("whoBtn").hidden = false;
+    $("whoAv").textContent = p.emoji; $("whoName").textContent = p.label || p.name; $("whoBtn").hidden = false;
     selected = new Set(load("gt-tables-" + p.name, [2, 3, 4, 5]));
-    $("setupTitle").textContent = "Hej " + p.name + "! Vilka tabeller vill du öva på?";
+    $("setupTitle").textContent = "Hej " + (p.label || p.name) + "! Vilka tabeller vill du öva på?";
     show("setup"); renderTables();
   }
   function goHome() {
@@ -609,7 +621,7 @@ const DATABASE_URL = "https://gangertabell-default-rtdb.europe-west1.firebasedat
   // ---------- celebration ----------
   function celebrate() {
     $("cheerEmoji").textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
-    $("cheerText").textContent = "Super " + player.name + "!";
+    $("cheerText").textContent = "Super " + (player.label || player.name) + "!";
     $("cheerSub").textContent = "Du har nu ⭐ " + totals[player.name].stars + " stjärnor! Tryck för att fortsätta";
     $("cheer").hidden = false;
     confetti();
@@ -660,7 +672,7 @@ const DATABASE_URL = "https://gangertabell-default-rtdb.europe-west1.firebasedat
     flush();
     show("summary");
     $("sumOk").textContent = ok; $("sumBad").textContent = bad; $("sumStars").textContent = stars;
-    $("sumTitle").textContent = practiceDone ? "Alla fel är rättade – super, " + player.name + "!" : "Bra jobbat, " + player.name + "!";
+    $("sumTitle").textContent = practiceDone ? "Alla fel är rättade – super, " + (player.label || player.name) + "!" : "Bra jobbat, " + (player.label || player.name) + "!";
     const t = totals[player.name];
     $("sumTotal").textContent = "Totalt har du samlat ⭐ " + t.stars + (t.stars === 1 ? " stjärna" : " stjärnor");
     const items = [...wrongs.values()];
