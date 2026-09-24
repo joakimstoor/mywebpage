@@ -2,9 +2,8 @@
 <html lang="sv">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<title>Eddas gångertabell</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gångertabellen</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@500;700;800&display=swap">
@@ -17,28 +16,32 @@
     --soft: #5B6883;
     --line: #CFE3D8;
     --coral: #FF6B5B;
+    --coral-shade: #D8483A;
     --sun: #FFC93C;
-    --grape: #6E56F0;
     --mint: #2FB67C;
-    --pale-grape: #ECE8FF;
     --pale-coral: #FFE7E3;
     --pale-mint: #DDF5E9;
+    --accent: #6E56F0;
+    --accent-shade: #4B36C4;
+    --accent-pale: #ECE8FF;
     --display: "Baloo 2", "Nunito", system-ui, sans-serif;
     --body: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
   }
   * { box-sizing: border-box; }
-  html, body { height: 100%; }
+  html, body { min-height: 100%; }
   body {
+    margin: 0;
     background: var(--ground);
     color: var(--ink);
     font-family: var(--body);
     font-size: 17px;
     padding-inline: 16px;
-    padding-block: 20px 32px;
+    padding-block: calc(20px + env(safe-area-inset-top, 0px)) calc(32px + env(safe-area-inset-bottom, 0px));
     -webkit-tap-highlight-color: transparent;
   }
+  [hidden] { display: none !important; }
   .wrap { max-width: 560px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
-  header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
   h1 {
     font-family: var(--display); font-weight: 800; font-size: clamp(30px, 8vw, 42px);
     line-height: 1; margin: 0; letter-spacing: -0.01em;
@@ -50,7 +53,29 @@
   .panel { background: var(--paper); border-radius: 22px; padding: 22px; box-shadow: 0 2px 0 var(--line); display: flex; flex-direction: column; gap: 18px; }
 
   button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
-  button:focus-visible { outline: 3px solid var(--grape); outline-offset: 3px; }
+  button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+  .who {
+    display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px 6px 8px; border-radius: 999px;
+    background: var(--paper); box-shadow: 0 2px 0 var(--line); font-weight: 800;
+  }
+  .who .av { font-size: 22px; line-height: 1; }
+  .who small { color: var(--soft); font-weight: 700; }
+
+  /* players */
+  .players { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .pcard {
+    display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 18px 8px 16px; border-radius: 20px;
+    background: var(--paper); border: 3px solid var(--pc); box-shadow: 0 5px 0 var(--pc);
+    transition: transform .08s, box-shadow .08s;
+  }
+  .pcard:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--pc); }
+  .pcard .av { font-size: 52px; line-height: 1.1; }
+  .pcard .nm { font-family: var(--display); font-weight: 800; font-size: 26px; line-height: 1.1; color: var(--pc); }
+  .pcard .st { font-weight: 800; font-size: 16px; font-variant-numeric: tabular-nums; }
+  .sync { font-size: 14px; font-weight: 700; color: var(--soft); text-align: center; }
+  .sync.ok { color: #16774D; }
+  .sync.off { color: var(--coral-shade); }
 
   /* table picker */
   .tables { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
@@ -59,33 +84,34 @@
     background: var(--ground); border: 2px solid var(--line); color: var(--soft);
     transition: transform .12s, background .12s, color .12s, border-color .12s;
   }
-  .tbl[aria-pressed="true"] { background: var(--grape); border-color: var(--grape); color: #fff; transform: translateY(-2px); box-shadow: 0 4px 0 #4B36C4; }
+  .tbl[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; transform: translateY(-2px); box-shadow: 0 4px 0 var(--accent-shade); }
   .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
   .chip { padding: 8px 14px; border-radius: 999px; background: var(--ground); font-weight: 800; font-size: 15px; color: var(--soft); }
   .chip:hover { color: var(--ink); }
   .big {
     font-family: var(--display); font-weight: 800; font-size: 24px; padding: 14px 26px; border-radius: 18px;
-    background: var(--coral); color: #fff; box-shadow: 0 5px 0 #D8483A; transition: transform .08s, box-shadow .08s;
+    background: var(--coral); color: #fff; box-shadow: 0 5px 0 var(--coral-shade); transition: transform .08s, box-shadow .08s;
   }
-  .big:active { transform: translateY(4px); box-shadow: 0 1px 0 #D8483A; }
+  .big:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--coral-shade); }
   .big[disabled] { background: var(--line); box-shadow: 0 5px 0 #B9D2C4; cursor: not-allowed; }
-  .big.alt { background: var(--grape); box-shadow: 0 5px 0 #4B36C4; }
+  .big.alt { background: var(--accent); box-shadow: 0 5px 0 var(--accent-shade); }
   .ghost { font-weight: 800; padding: 10px 16px; border-radius: 14px; border: 2px solid var(--line); background: var(--paper); }
   .ghost:hover { border-color: var(--soft); }
 
   /* game */
-  .scorebar { display: flex; gap: 10px; align-items: stretch; }
-  .score { flex: 1; background: var(--paper); border-radius: 18px; padding: 10px 14px; display: flex; flex-direction: column; box-shadow: 0 2px 0 var(--line); }
+  .scorebar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .score { background: var(--paper); border-radius: 18px; padding: 10px 14px; display: flex; flex-direction: column; box-shadow: 0 2px 0 var(--line); }
   .score b { font-family: var(--display); font-size: 30px; line-height: 1.05; font-variant-numeric: tabular-nums; }
   .score.ok b { color: var(--mint); }
   .score.bad b { color: var(--coral); }
+  .score.star b { color: #D99A00; }
   .dots { display: flex; gap: 6px; flex-wrap: wrap; }
   .dot { width: 22px; height: 22px; border-radius: 50%; background: var(--ground); border: 2px solid var(--line); transition: background .2s, transform .2s; }
   .dot.on { background: var(--sun); border-color: #E7A800; transform: scale(1.08); }
 
-  .question { text-align: center; padding-block: 8px 0; }
+  .question { text-align: center; }
   .q { font-family: var(--display); font-weight: 800; font-size: clamp(54px, 17vw, 88px); line-height: 1; font-variant-numeric: tabular-nums; }
-  .q .op { color: var(--grape); }
+  .q .op { color: var(--accent); }
   .answer {
     margin: 14px auto 0; min-height: 76px; width: min(220px, 100%); border-radius: 18px;
     border: 3px dashed var(--line); display: grid; place-items: center;
@@ -109,12 +135,13 @@
   .key.ok { background: var(--mint); color: #fff; box-shadow: 0 3px 0 #1F8A5B; }
   .key.del { color: var(--soft); font-size: 22px; }
   .gamefoot { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: center; }
-  .modetag { font-weight: 800; font-size: 14px; padding: 6px 12px; border-radius: 999px; background: var(--pale-grape); color: var(--grape); }
+  .modetag { font-weight: 800; font-size: 14px; padding: 6px 12px; border-radius: 999px; background: var(--accent-pale); color: var(--accent); }
 
   /* summary */
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
   .stat { background: var(--ground); border-radius: 16px; padding: 12px; text-align: center; }
   .stat b { display: block; font-family: var(--display); font-size: 36px; line-height: 1.05; font-variant-numeric: tabular-nums; }
+  .total { padding: 14px 16px; border-radius: 16px; background: #FFF4D1; font-weight: 800; text-align: center; font-size: 18px; }
   .wrongs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
   .wrongs li {
     display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center;
@@ -137,7 +164,7 @@
     box-shadow: 0 10px 0 var(--sun); animation: pop .5s cubic-bezier(.2,1.6,.4,1);
   }
   .cheer-emoji { font-size: 84px; line-height: 1; }
-  .cheer-text { font-family: var(--display); font-weight: 800; font-size: clamp(40px, 12vw, 64px); line-height: 1.05; color: var(--grape); margin-top: 8px; }
+  .cheer-text { font-family: var(--display); font-weight: 800; font-size: clamp(40px, 12vw, 64px); line-height: 1.05; color: var(--accent); margin-top: 8px; }
   .cheer-sub { color: var(--soft); font-weight: 800; margin-top: 4px; }
   @keyframes pop { from { transform: scale(.4) rotate(-8deg); opacity: 0; } to { transform: scale(1) rotate(0); opacity: 1; } }
   @media (prefers-reduced-motion: reduce) {
@@ -145,17 +172,28 @@
     * { transition: none !important; }
   }
 </style>
+</head>
+<body>
 
 <div class="wrap">
   <header>
     <h1>Gånger<span class="x">×</span>tabellen</h1>
-    <span class="muted" style="font-weight:800">för Edda</span>
+    <button class="who" id="whoBtn" type="button" hidden aria-label="Byt spelare">
+      <span class="av" id="whoAv">🦄</span><span id="whoName">Edda</span><small>byt</small>
+    </button>
   </header>
 
+  <!-- PLAYERS -->
+  <section id="players" class="panel">
+    <h2>Vem spelar?</h2>
+    <div class="players" id="playerList"></div>
+    <div class="sync" id="syncStatus">Hämtar stjärnor…</div>
+  </section>
+
   <!-- SETUP -->
-  <section id="setup" class="panel">
+  <section id="setup" class="panel" hidden>
     <div>
-      <h2>Vilka tabeller vill du öva på?</h2>
+      <h2 id="setupTitle">Hej Edda! Vilka tabeller vill du öva på?</h2>
       <p class="muted" style="margin:6px 0 0">Tryck på siffrorna för att välja.</p>
     </div>
     <div class="tables" id="tables"></div>
@@ -172,10 +210,11 @@
       <div class="scorebar">
         <div class="score ok"><span class="label">Rätt</span><b id="okCount">0</b></div>
         <div class="score bad"><span class="label">Fel</span><b id="badCount">0</b></div>
+        <div class="score star"><span class="label">Stjärnor</span><b id="starTotal">0</b></div>
       </div>
       <div class="panel">
         <div>
-          <div class="label" style="margin-bottom:8px">Till nästa överraskning</div>
+          <div class="label" style="margin-bottom:8px">Till nästa stjärna</div>
           <div class="dots" id="dots"></div>
         </div>
         <div class="question">
@@ -194,16 +233,14 @@
 
   <!-- SUMMARY -->
   <section id="summary" class="panel" hidden>
-    <h2 id="sumTitle">Bra jobbat, Edda!</h2>
+    <h2 id="sumTitle">Bra jobbat!</h2>
     <div class="stats">
       <div class="stat"><span class="label">Rätt</span><b id="sumOk" style="color:var(--mint)">0</b></div>
       <div class="stat"><span class="label">Fel</span><b id="sumBad" style="color:var(--coral)">0</b></div>
-      <div class="stat"><span class="label">Stjärnor</span><b id="sumStars" style="color:#E7A800">0</b></div>
+      <div class="stat"><span class="label">Nya ⭐</span><b id="sumStars" style="color:#D99A00">0</b></div>
     </div>
-    <div id="wrongWrap" style="display:flex;flex-direction:column;gap:10px">
-      <div class="label">De här blev fel – så här är det rätt</div>
-      <ul class="wrongs" id="wrongList"></ul>
-    </div>
+    <div class="total" id="sumTotal">Totalt ⭐ 0 stjärnor</div>
+    <div id="wrongWrap" style="display:flex;flex-direction:column;gap:10px"></div>
     <div class="row">
       <button class="big alt" id="practiceWrong" type="button">Öva på dem som blev fel</button>
       <button class="big" id="againBtn" type="button">Spela igen</button>
@@ -214,30 +251,123 @@
 <div class="cheer" id="cheer" hidden>
   <div class="cheer-card">
     <div class="cheer-emoji" id="cheerEmoji">🎉</div>
-    <div class="cheer-text">Super Edda!</div>
+    <div class="cheer-text" id="cheerText">Super Edda!</div>
     <div class="cheer-sub" id="cheerSub">10 rätt till!</div>
   </div>
 </div>
 <canvas id="confetti"></canvas>
 
 <script>
+/* ================================================================
+   INSTÄLLNING: klistra in adressen till din Firebase Realtime
+   Database mellan citattecknen, t.ex.
+   "https://gangertabell-default-rtdb.europe-west1.firebasedatabase.app"
+   Lämnas den tom sparas stjärnorna bara på den här enheten.
+   ================================================================ */
+const DATABASE_URL = "https://console.firebase.google.com/project/gangertabell/database/gangertabell-default-rtdb/data/~2F";
+
 (() => {
   const $ = id => document.getElementById(id);
+  const DB = DATABASE_URL.trim().replace(/\/+$/, "");
+  const PLAYERS = [
+    { name: "Edda",   emoji: "🦄", color: "#6E56F0", shade: "#4B36C4", pale: "#ECE8FF" },
+    { name: "Ember",  emoji: "🐉", color: "#E4572E", shade: "#B53B18", pale: "#FFE6DC" },
+    { name: "Olivia", emoji: "🌸", color: "#D6337F", shade: "#A71F5E", pale: "#FFE3F0" },
+  ];
   const EMOJIS = ["🎉","🥳","🌟","🦄","🌈","😄","🤩","🐱","🐶","🍭","🎈","💖","🐬","🦋","🍓","🚀","👑","🐼","🌻","😺","🏆","✨","🐸","🍦"];
+  const FIELDS = ["stars", "ok", "bad", "games"];
 
-  // ---------- state ----------
-  let selected = new Set([2, 3, 4, 5]);
-  try {
-    const s = JSON.parse(localStorage.getItem("edda-tables") || "null");
-    if (Array.isArray(s) && s.length) selected = new Set(s);
-  } catch (e) {}
+  // ---------- storage helpers ----------
+  const load = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v ?? d; } catch (e) { return d; } };
+  const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+  const blank = () => ({ stars: 0, ok: 0, bad: 0, games: 0 });
 
-  let ok = 0, bad = 0, streakToTen = 0, stars = 0;
-  let current = null, typed = "", locked = false, lastKey = "";
-  let wrongs = new Map();   // key "a×b" -> {a,b,answers:[]}
-  let practiceQueue = null; // array of {a,b} when practicing mistakes
+  let totals = load("gt-totals", {});    // what we show (server + not-yet-sent)
+  let pending = load("gt-pending", {});  // increments not yet saved online
+  PLAYERS.forEach(p => { totals[p.name] = Object.assign(blank(), totals[p.name]); pending[p.name] = Object.assign(blank(), pending[p.name]); });
+
+  // ---------- online sync (Firebase Realtime Database, REST) ----------
+  function setSync(text, cls) { const s = $("syncStatus"); s.textContent = text; s.className = "sync" + (cls ? " " + cls : ""); }
+
+  async function refreshTotals() {
+    if (!DB) { setSync("Stjärnorna sparas bara på den här enheten."); renderPlayers(); return; }
+    try {
+      await flush();
+      const r = await fetch(DB + "/players.json", { cache: "no-store" });
+      if (!r.ok) throw new Error(r.status);
+      const data = (await r.json()) || {};
+      PLAYERS.forEach(p => {
+        const srv = data[p.name] || {}, pen = pending[p.name];
+        FIELDS.forEach(f => totals[p.name][f] = (Number(srv[f]) || 0) + (pen[f] || 0));
+      });
+      save("gt-totals", totals);
+      setSync("✓ Stjärnorna sparas på nätet", "ok");
+    } catch (e) {
+      setSync("Ingen kontakt med nätet – stjärnorna sparas när nätet är tillbaka.", "off");
+    }
+    renderPlayers();
+  }
+
+  let flushing = false, flushTimer = 0;
+  function scheduleFlush() { clearTimeout(flushTimer); flushTimer = setTimeout(flush, 1200); }
+  async function flush() {
+    if (!DB) { PLAYERS.forEach(p => pending[p.name] = blank()); save("gt-pending", pending); return; }
+    if (flushing) return;
+    flushing = true;
+    try {
+      for (const p of PLAYERS) {
+        const pen = pending[p.name];
+        const sent = {}; const body = {};
+        FIELDS.forEach(f => { if (pen[f]) { sent[f] = pen[f]; body[f] = { ".sv": { increment: pen[f] } }; } });
+        if (!Object.keys(body).length) continue;
+        const r = await fetch(DB + "/players/" + encodeURIComponent(p.name) + ".json", {
+          method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), keepalive: true
+        });
+        if (!r.ok) throw new Error(r.status);
+        FIELDS.forEach(f => { if (sent[f]) pending[p.name][f] -= sent[f]; });
+        save("gt-pending", pending);
+      }
+    } catch (e) { /* try again later */ }
+    flushing = false;
+  }
+  window.addEventListener("online", flush);
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") flush(); });
+
+  function bump(field, n = 1) {
+    if (!player) return;
+    totals[player.name][field] += n; pending[player.name][field] += n;
+    save("gt-totals", totals); save("gt-pending", pending);
+    scheduleFlush();
+  }
+
+  // ---------- players ----------
+  let player = null;
+  function renderPlayers() {
+    const list = $("playerList"); list.innerHTML = "";
+    PLAYERS.forEach(p => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "pcard"; b.style.setProperty("--pc", p.color);
+      b.innerHTML = '<span class="av">' + p.emoji + '</span><span class="nm">' + p.name + '</span><span class="st">⭐ ' + totals[p.name].stars + '</span>';
+      b.addEventListener("click", () => choosePlayer(p));
+      list.appendChild(b);
+    });
+  }
+  function choosePlayer(p) {
+    player = p;
+    const r = document.documentElement.style;
+    r.setProperty("--accent", p.color); r.setProperty("--accent-shade", p.shade); r.setProperty("--accent-pale", p.pale);
+    $("whoAv").textContent = p.emoji; $("whoName").textContent = p.name; $("whoBtn").hidden = false;
+    selected = new Set(load("gt-tables-" + p.name, [2, 3, 4, 5]));
+    $("setupTitle").textContent = "Hej " + p.name + "! Vilka tabeller vill du öva på?";
+    show("setup"); renderTables();
+  }
+  $("whoBtn").onclick = () => {
+    player = null; $("whoBtn").hidden = true; show("players"); refreshTotals();
+  };
+  function show(id) { ["players", "setup", "game", "summary"].forEach(s => $(s).hidden = s !== id); }
 
   // ---------- setup ----------
+  let selected = new Set([2, 3, 4, 5]);
   const tablesEl = $("tables");
   for (let n = 1; n <= 10; n++) {
     const b = document.createElement("button");
@@ -249,12 +379,11 @@
     for (let n = 1; n <= 10; n++) $("tbl" + n).setAttribute("aria-pressed", selected.has(n));
     $("startBtn").disabled = selected.size === 0;
     $("startBtn").textContent = selected.size ? "Starta!" : "Välj minst en tabell";
-    try { localStorage.setItem("edda-tables", JSON.stringify([...selected])); } catch (e) {}
+    if (player) save("gt-tables-" + player.name, [...selected]);
   }
   $("selAll").onclick = () => { for (let n = 1; n <= 10; n++) selected.add(n); renderTables(); };
   $("selNone").onclick = () => { selected.clear(); renderTables(); };
   $("startBtn").onclick = () => startGame(null);
-  renderTables();
 
   // ---------- keypad ----------
   const pad = $("pad");
@@ -273,6 +402,11 @@
     else if (e.key === "Enter") { e.preventDefault(); press("OK"); }
   });
 
+  let ok = 0, bad = 0, streakToTen = 0, stars = 0;
+  let current = null, typed = "", locked = false, lastKey = "";
+  let wrongs = new Map();
+  let practiceQueue = null;
+
   function press(k) {
     if (locked) return;
     if (k === "⌫") typed = typed.slice(0, -1);
@@ -290,7 +424,8 @@
   function startGame(queue) {
     practiceQueue = queue;
     if (!queue) { ok = 0; bad = 0; streakToTen = 0; stars = 0; wrongs = new Map(); }
-    $("setup").hidden = true; $("summary").hidden = true; $("game").hidden = false;
+    bump("games");
+    show("game");
     $("modeTag").textContent = queue
       ? "Övar på felen: " + queue.length + " kvar"
       : "Tabeller: " + [...selected].sort((a, b) => a - b).join(", ");
@@ -324,25 +459,25 @@
     const val = parseInt(typed, 10), right = current.a * current.b;
     const fb = $("feedback");
     if (val === right) {
-      ok++; streakToTen++;
+      ok++; streakToTen++; bump("ok");
       drawAnswer("right");
       fb.textContent = ["Rätt!", "Snyggt!", "Jättebra!", "Precis!", "Ja!"][Math.floor(Math.random() * 5)];
       fb.className = "feedback good";
       if (practiceQueue) practiceQueue.shift();
-      updateScore();
       if (streakToTen >= 10) {
-        streakToTen = 0; stars++;
-        setTimeout(() => { updateScore(); celebrate(); }, 450);
-      } else setTimeout(nextQuestion, 700);
+        streakToTen = 0; stars++; bump("stars");
+        updateScore();
+        setTimeout(celebrate, 450);
+      } else { updateScore(); setTimeout(nextQuestion, 700); }
     } else {
-      bad++;
+      bad++; bump("bad");
       const key = current.a + "×" + current.b;
       if (!wrongs.has(key)) wrongs.set(key, { a: current.a, b: current.b, answers: [] });
       wrongs.get(key).answers.push(val);
       drawAnswer("wrong");
       fb.textContent = "Inte riktigt – " + current.a + " × " + current.b + " = " + right;
       fb.className = "feedback bad";
-      if (practiceQueue) practiceQueue.push(practiceQueue.shift()); // try again later
+      if (practiceQueue) practiceQueue.push(practiceQueue.shift());
       updateScore();
       setTimeout(nextQuestion, 2000);
     }
@@ -350,6 +485,7 @@
 
   function updateScore() {
     $("okCount").textContent = ok; $("badCount").textContent = bad;
+    $("starTotal").textContent = player ? totals[player.name].stars : 0;
     const d = $("dots"); d.innerHTML = "";
     for (let i = 0; i < 10; i++) {
       const s = document.createElement("span");
@@ -361,7 +497,8 @@
   // ---------- celebration ----------
   function celebrate() {
     $("cheerEmoji").textContent = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
-    $("cheerSub").textContent = ok + " rätt hittills! Tryck för att fortsätta";
+    $("cheerText").textContent = "Super " + player.name + "!";
+    $("cheerSub").textContent = "Du har nu ⭐ " + totals[player.name].stars + " stjärnor! Tryck för att fortsätta";
     $("cheer").hidden = false;
     confetti();
   }
@@ -396,8 +533,9 @@
     for (const p of parts) {
       p.life++; p.vy += 0.32; p.vx *= 0.985; p.vy *= 0.99;
       p.x += p.vx; p.y += p.vy; p.r += p.vr;
+      const s = Math.abs(Math.cos(p.r * 2));
       cx.save(); cx.translate(p.x, p.y); cx.rotate(p.r);
-      cx.fillStyle = p.c; cx.fillRect(-p.w / 2, -p.h / 2 * Math.abs(Math.cos(p.r * 2)), p.w, p.h * Math.abs(Math.cos(p.r * 2)) + 1);
+      cx.fillStyle = p.c; cx.fillRect(-p.w / 2, -p.h / 2 * s, p.w, p.h * s + 1);
       cx.restore();
     }
     raf = parts.length ? requestAnimationFrame(tick) : 0;
@@ -407,13 +545,16 @@
   // ---------- end / summary ----------
   $("endBtn").onclick = () => endGame(false);
   function endGame(practiceDone) {
-    $("game").hidden = true; $("summary").hidden = false;
+    flush();
+    show("summary");
     $("sumOk").textContent = ok; $("sumBad").textContent = bad; $("sumStars").textContent = stars;
-    $("sumTitle").textContent = practiceDone ? "Alla fel är rättade – super, Edda!" : ok ? "Bra jobbat, Edda!" : "Vi ses snart igen, Edda!";
+    $("sumTitle").textContent = practiceDone ? "Alla fel är rättade – super, " + player.name + "!" : "Bra jobbat, " + player.name + "!";
+    const t = totals[player.name];
+    $("sumTotal").textContent = "Totalt har du samlat ⭐ " + t.stars + (t.stars === 1 ? " stjärna" : " stjärnor");
     const items = [...wrongs.values()];
     const ww = $("wrongWrap");
     if (!items.length) {
-      ww.innerHTML = '<div class="allgood">Inga fel alls! 🌟</div>';
+      ww.innerHTML = ok ? '<div class="allgood">Inga fel alls! 🌟</div>' : "";
       $("practiceWrong").hidden = true;
     } else {
       ww.innerHTML = '<div class="label">De här blev fel – så här är det rätt</div><ul class="wrongs" id="wrongList"></ul>';
@@ -435,8 +576,11 @@
     wrongs = new Map(); ok = 0; bad = 0; streakToTen = 0; stars = 0;
     startGame(q);
   };
-  $("againBtn").onclick = () => { $("summary").hidden = true; $("setup").hidden = false; };
+  $("againBtn").onclick = () => show("setup");
+
+  renderPlayers();
+  refreshTotals();
 })();
 </script>
-
-</body></html>
+</body>
+</html>
