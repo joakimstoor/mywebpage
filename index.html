@@ -63,16 +63,50 @@
   .who small { color: var(--soft); font-weight: 700; }
 
   /* players */
-  .players { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .players { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
   .pcard {
     display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 18px 8px 16px; border-radius: 20px;
     background: var(--paper); border: 3px solid var(--pc); box-shadow: 0 5px 0 var(--pc);
     transition: transform .08s, box-shadow .08s;
   }
   .pcard:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--pc); }
-  .pcard .av { font-size: 52px; line-height: 1.1; }
-  .pcard .nm { font-family: var(--display); font-weight: 800; font-size: 26px; line-height: 1.1; color: var(--pc); }
+  .pcard .av { font-size: clamp(40px, 12vw, 52px); line-height: 1.1; }
+  .pcard .nm { font-family: var(--display); font-weight: 800; font-size: clamp(19px, 5.6vw, 26px); line-height: 1.1; color: var(--pc); }
   .pcard .st { font-weight: 800; font-size: 16px; font-variant-numeric: tabular-nums; }
+  .pcard.wide { flex-direction: row; justify-content: center; gap: 14px; width: 100%; padding: 14px 18px; }
+  .pcard.wide .av { font-size: 46px; }
+  .pcard.wide .nm { font-size: 30px; }
+  .pcard.wide .st { font-size: 20px; }
+  .team-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+  .team-total { font-family: var(--display); font-weight: 800; font-size: 24px; font-variant-numeric: tabular-nums; }
+  /* arena: kids vs Jocke */
+  .arena { border-radius: 26px; overflow: hidden; box-shadow: 0 6px 0 rgba(31, 42, 68, 0.18); background: #2563EB; }
+  .side { display: flex; flex-direction: column; gap: 14px; padding: 22px; color: #fff; }
+  .side.kids { background: linear-gradient(160deg, #C026D3 0%, #F0508A 45%, #FF7A45 100%); padding-bottom: 8px; }
+  .side.rival { background: linear-gradient(180deg, #2563EB 0%, #1E3A8A 60%, #0F1E4D 100%); padding-top: 4px; }
+  .side h2 { color: #fff; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.15); }
+  .side .label { color: rgba(255, 255, 255, 0.85); }
+  .side .team-head { margin-bottom: -4px; }
+  .side .team-total { color: #fff; text-shadow: 0 2px 0 rgba(0, 0, 0, 0.15); }
+  .side .pcard { color: var(--ink); box-shadow: 0 5px 0 var(--pc), 0 10px 18px rgba(0, 0, 0, 0.18); }
+  .seam { position: relative; height: 90px; display: grid; place-items: center; }
+  .seam svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .bolt { animation: flash 4s infinite; }
+  @keyframes flash {
+    0%, 86%, 100% { opacity: 1; }
+    88% { opacity: .35; } 90% { opacity: 1; } 92% { opacity: .5; } 94% { opacity: 1; }
+  }
+  .vs {
+    position: relative; width: 78px; height: 78px; border-radius: 50%; display: grid; place-items: center;
+    background: radial-gradient(circle at 35% 30%, #FFF3B0, #FFD43B 50%, #F59E0B);
+    color: #1F2A44; font-family: var(--display); font-weight: 800; font-style: italic; font-size: 34px; line-height: 1;
+    transform: rotate(-10deg);
+    box-shadow: 0 0 0 5px #fff, 0 0 26px 8px rgba(255, 225, 77, 0.75);
+  }
+  .lead { text-align: center; font-weight: 800; color: #FFE14D; font-size: 18px; }
+  .rival .sync { color: rgba(255, 255, 255, 0.75); }
+  .rival .sync.ok { color: #86EFAC; }
+  .rival .sync.off { color: #FECACA; }
   .sync { font-size: 14px; font-weight: 700; color: var(--soft); text-align: center; }
   .sync.ok { color: #16774D; }
   .sync.off { color: var(--coral-shade); }
@@ -168,7 +202,7 @@
   .cheer-sub { color: var(--soft); font-weight: 800; margin-top: 4px; }
   @keyframes pop { from { transform: scale(.4) rotate(-8deg); opacity: 0; } to { transform: scale(1) rotate(0); opacity: 1; } }
   @media (prefers-reduced-motion: reduce) {
-    .cheer-card, .answer.wrong { animation: none; }
+    .cheer-card, .answer.wrong, .bolt { animation: none; }
     * { transition: none !important; }
   }
 </style>
@@ -184,10 +218,34 @@
   </header>
 
   <!-- PLAYERS -->
-  <section id="players" class="panel">
-    <h2>Vem spelar?</h2>
-    <div class="players" id="playerList"></div>
-    <div class="sync" id="syncStatus">Hämtar stjärnor…</div>
+  <section id="players" class="arena">
+    <div class="side kids">
+      <h2>Vem spelar?</h2>
+      <div class="team-head"><span class="label">Barnen</span><span class="team-total">⭐ <b id="teamStars">0</b></span></div>
+      <div class="players" id="playerList"></div>
+    </div>
+    <div class="seam" aria-hidden="true">
+      <svg viewBox="0 0 400 90" preserveAspectRatio="none">
+        <defs>
+          <filter id="glow" x="-10%" y="-60%" width="120%" height="220%">
+            <feGaussianBlur stdDeviation="4" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <polygon points="0,0 400,0 400,30 318,58 262,34 212,66 150,26 92,52 0,32" fill="#FF7A45"/>
+        <polygon points="0,32 92,52 150,26 212,66 262,34 318,58 400,30 400,90 0,90" fill="#2563EB"/>
+        <g class="bolt" filter="url(#glow)">
+          <polyline points="0,32 92,52 150,26 212,66 262,34 318,58 400,30" fill="none" stroke="#FFE14D" stroke-width="10" stroke-linejoin="miter" vector-effect="non-scaling-stroke"/>
+          <polyline points="0,32 92,52 150,26 212,66 262,34 318,58 400,30" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linejoin="miter" vector-effect="non-scaling-stroke"/>
+        </g>
+      </svg>
+      <span class="vs">vs.</span>
+    </div>
+    <div class="side rival">
+      <div class="lead" id="leadText"></div>
+      <div id="rivalSlot"></div>
+      <div class="sync" id="syncStatus">Hämtar stjärnor…</div>
+    </div>
   </section>
 
   <!-- SETUP -->
@@ -264,7 +322,7 @@
    "https://gangertabell-default-rtdb.europe-west1.firebasedatabase.app"
    Lämnas den tom sparas stjärnorna bara på den här enheten.
    ================================================================ */
-    const DATABASE_URL = "https://gangertabell-default-rtdb.europe-west1.firebasedatabase.app";
+const DATABASE_URL = "https://gangertabell-default-rtdb.europe-west1.firebasedatabase.app";
 
 (() => {
   const $ = id => document.getElementById(id);
@@ -273,6 +331,7 @@
     { name: "Edda",   emoji: "🦄", color: "#6E56F0", shade: "#4B36C4", pale: "#ECE8FF" },
     { name: "Ember",  emoji: "🐉", color: "#E4572E", shade: "#B53B18", pale: "#FFE6DC" },
     { name: "Olivia", emoji: "🌸", color: "#D6337F", shade: "#A71F5E", pale: "#FFE3F0" },
+    { name: "Jocke",  emoji: "🧑‍🏫", color: "#0E7C74", shade: "#095A54", pale: "#D9F2EF", rival: true },
   ];
   const EMOJIS = ["🎉","🥳","🌟","🦄","🌈","😄","🤩","🐱","🐶","🍭","🎈","💖","🐬","🦋","🍓","🚀","👑","🐼","🌻","😺","🏆","✨","🐸","🍦"];
   const FIELDS = ["stars", "ok", "bad", "games"];
@@ -344,13 +403,21 @@
   let player = null;
   function renderPlayers() {
     const list = $("playerList"); list.innerHTML = "";
+    const slot = $("rivalSlot"); slot.innerHTML = "";
+    let team = 0, rival = 0;
     PLAYERS.forEach(p => {
+      if (p.rival) rival += totals[p.name].stars; else team += totals[p.name].stars;
       const b = document.createElement("button");
-      b.type = "button"; b.className = "pcard"; b.style.setProperty("--pc", p.color);
+      b.type = "button"; b.className = "pcard" + (p.rival ? " wide" : ""); b.style.setProperty("--pc", p.color);
       b.innerHTML = '<span class="av">' + p.emoji + '</span><span class="nm">' + p.name + '</span><span class="st">⭐ ' + totals[p.name].stars + '</span>';
       b.addEventListener("click", () => choosePlayer(p));
-      list.appendChild(b);
+      (p.rival ? slot : list).appendChild(b);
     });
+    $("teamStars").textContent = team;
+    const diff = team - rival;
+    $("leadText").textContent = diff > 0 ? "Barnen leder med " + diff + " ⭐"
+      : diff < 0 ? "Jocke leder med " + (-diff) + " ⭐ – kom igen barn!"
+      : "Oavgjort – vem tar ledningen?";
   }
   function choosePlayer(p) {
     player = p;
