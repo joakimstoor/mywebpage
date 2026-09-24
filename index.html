@@ -55,6 +55,27 @@
   button { font: inherit; color: inherit; cursor: pointer; border: 0; background: none; }
   button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 
+  .home-title { font: inherit; letter-spacing: inherit; padding: 0; border-radius: 10px; }
+  .home-title:hover .x { display: inline-block; transform: rotate(90deg); transition: transform .25s; }
+  .head-right { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .scorepill {
+    display: inline-flex; align-items: stretch; border-radius: 999px; overflow: hidden; font-weight: 800; font-size: 15px; color: #fff;
+    box-shadow: 0 3px 0 rgba(31, 42, 68, 0.25); transition: transform .08s, box-shadow .08s;
+  }
+  .scorepill:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(31, 42, 68, 0.25); }
+  .scorepill > span { display: flex; align-items: center; gap: 6px; padding: 7px 12px; }
+  .scorepill b { font-family: var(--display); font-size: 19px; line-height: 1; font-variant-numeric: tabular-nums; }
+  .sp-kids { background: linear-gradient(135deg, #C026D3, #FF7A45); padding-right: 18px !important; }
+  .sp-rival { background: linear-gradient(135deg, #2563EB, #1E3A8A); padding-left: 18px !important; }
+  .sp-bolt {
+    padding: 0 !important; width: 0; position: relative; z-index: 1; justify-content: center; font-size: 22px;
+    filter: drop-shadow(0 0 5px rgba(255, 225, 77, 0.9));
+  }
+  .big.versus {
+    background: linear-gradient(115deg, #C026D3 0%, #FF7A45 48%, #2563EB 52%, #1E3A8A 100%);
+    box-shadow: 0 5px 0 #1F2A44;
+  }
+  .big.versus:active { box-shadow: 0 1px 0 #1F2A44; }
   .who {
     display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px 6px 8px; border-radius: 999px;
     background: var(--paper); box-shadow: 0 2px 0 var(--line); font-weight: 800;
@@ -211,10 +232,17 @@
 
 <div class="wrap">
   <header>
-    <h1>Gånger<span class="x">×</span>tabellen</h1>
-    <button class="who" id="whoBtn" type="button" hidden aria-label="Byt spelare">
-      <span class="av" id="whoAv">🦄</span><span id="whoName">Edda</span><small>byt</small>
-    </button>
+    <h1><button type="button" class="home-title" id="homeTitle" aria-label="Till startsidan och ställningen">Gånger<span class="x">×</span>tabellen</button></h1>
+    <div class="head-right">
+      <button class="scorepill" id="scorePill" type="button" hidden aria-label="Se ställningen">
+        <span class="sp-kids">Barnen <b id="spKids">0</b></span>
+        <span class="sp-bolt">⚡</span>
+        <span class="sp-rival"><b id="spRival">0</b> Jocke</span>
+      </button>
+      <button class="who" id="whoBtn" type="button" hidden aria-label="Byt spelare">
+        <span class="av" id="whoAv">🦄</span><span id="whoName">Edda</span><small>byt</small>
+      </button>
+    </div>
   </header>
 
   <!-- PLAYERS -->
@@ -302,6 +330,7 @@
     <div class="row">
       <button class="big alt" id="practiceWrong" type="button">Öva på dem som blev fel</button>
       <button class="big" id="againBtn" type="button">Spela igen</button>
+      <button class="big versus" id="standingBtn" type="button">⚡ Se ställningen</button>
     </div>
   </section>
 </div>
@@ -396,6 +425,7 @@ const DATABASE_URL = "https://gangertabell-default-rtdb.europe-west1.firebasedat
     if (!player) return;
     totals[player.name][field] += n; pending[player.name][field] += n;
     save("gt-totals", totals); save("gt-pending", pending);
+    updatePill();
     scheduleFlush();
   }
 
@@ -428,10 +458,25 @@ const DATABASE_URL = "https://gangertabell-default-rtdb.europe-west1.firebasedat
     $("setupTitle").textContent = "Hej " + p.name + "! Vilka tabeller vill du öva på?";
     show("setup"); renderTables();
   }
+  function goHome() {
+    player = null; $("whoBtn").hidden = true; show("players"); refreshTotals();
+  }
+  $("homeTitle").onclick = goHome;
+  $("scorePill").onclick = goHome;
+  $("standingBtn").onclick = goHome;
   $("whoBtn").onclick = () => {
     player = null; $("whoBtn").hidden = true; show("players"); refreshTotals();
   };
-  function show(id) { ["players", "setup", "game", "summary"].forEach(s => $(s).hidden = s !== id); }
+  function show(id) {
+    ["players", "setup", "game", "summary"].forEach(s => $(s).hidden = s !== id);
+    $("scorePill").hidden = id === "players";
+    updatePill();
+  }
+  function updatePill() {
+    let kids = 0, rival = 0;
+    PLAYERS.forEach(p => { if (p.rival) rival += totals[p.name].stars; else kids += totals[p.name].stars; });
+    $("spKids").textContent = kids; $("spRival").textContent = rival;
+  }
 
   // ---------- setup ----------
   let selected = new Set([2, 3, 4, 5]);
