@@ -200,6 +200,52 @@
   .gamefoot { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: center; }
   .modetag { font-weight: 800; font-size: 14px; padding: 6px 12px; border-radius: 999px; background: var(--accent-pale); color: var(--accent); }
 
+  /* home + quiz */
+  .home { display: flex; flex-direction: column; gap: 16px; }
+  .quizrow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .quizrow .big { display: flex; align-items: center; gap: 10px; text-align: left; padding: 14px 16px; font-size: 22px; line-height: 1.05; }
+  .quizrow .big small { display: block; font-family: var(--body); font-size: 13px; font-weight: 800; opacity: .8; margin-top: 3px; }
+  .qi { font-size: 30px; }
+  .big.quizbtn { background: #1F2A44; color: #FFE14D; box-shadow: 0 5px 0 #0B1222; }
+  .big.quizbtn:active { box-shadow: 0 1px 0 #0B1222; }
+  .big.hsbtn { background: linear-gradient(135deg, #FFD43B, #F59E0B); color: #1F2A44; box-shadow: 0 5px 0 #C27803; }
+  .big.hsbtn:active { box-shadow: 0 1px 0 #C27803; }
+  .big.quizbtn[disabled] { background: var(--line); color: var(--soft); box-shadow: 0 5px 0 #B9D2C4; }
+  .seg { display: inline-flex; background: var(--ground); border-radius: 14px; padding: 4px; gap: 4px; flex-wrap: wrap; }
+  .segbtn { padding: 10px 18px; border-radius: 11px; font-weight: 800; color: var(--soft); }
+  .segbtn[aria-pressed="true"] { background: #1F2A44; color: #fff; }
+  .quizbar { background: #1F2A44; color: #fff; border-radius: 18px; padding: 12px 16px 14px; display: flex; flex-direction: column; gap: 10px; }
+  .qb-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .qb-count { font-weight: 800; color: rgba(255,255,255,.75); }
+  .qb-count b, .qb-time b { font-family: var(--display); font-size: 34px; line-height: 1; color: #fff; font-variant-numeric: tabular-nums; }
+  .qb-time { display: flex; align-items: baseline; gap: 8px; }
+  .qb-time small { font-weight: 800; color: rgba(255,255,255,.6); }
+  .quizbar.hurry .qb-time b { color: #FF8A7A; }
+  .qb-track { position: relative; height: 12px; border-radius: 6px; background: rgba(255,255,255,.14); overflow: hidden; }
+  #qProg { position: absolute; inset: 0 auto 0 0; width: 0; background: linear-gradient(90deg, #2FB67C, #86EFAC); border-radius: 6px; }
+  .qb-clock { position: absolute; top: 0; bottom: 0; width: 3px; left: 0; background: #FFE14D; box-shadow: 0 0 8px #FFE14D; }
+  .hs-entry { background: #FFF4D1; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .hs-entry-title { font-family: var(--display); font-weight: 800; font-size: 22px; line-height: 1.1; }
+  .hs-form { display: flex; flex-direction: column; gap: 8px; }
+  .hs-form input {
+    flex: 1 1 160px; min-width: 0; font: inherit; font-weight: 800; font-size: 20px; padding: 12px 14px; border-radius: 14px;
+    border: 3px solid #F2C94C; background: #fff; color: var(--ink);
+  }
+  .hs-form input:focus-visible { outline: 3px solid #1F2A44; outline-offset: 2px; }
+  .hs-form .big { padding: 12px 22px; font-size: 20px; }
+  .hslist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; counter-reset: r; }
+  .hslist li {
+    display: grid; grid-template-columns: 38px 1fr auto; gap: 2px 10px; align-items: center;
+    padding: 10px 14px; border-radius: 14px; background: var(--ground);
+  }
+  .hslist li.me { background: #FFF4D1; box-shadow: inset 0 0 0 3px #F2C94C; }
+  .hslist .rk { font-family: var(--display); font-weight: 800; font-size: 22px; text-align: center; color: var(--soft); grid-row: 1 / span 2; }
+  .hslist li:nth-child(1) .rk, .hslist li:nth-child(2) .rk, .hslist li:nth-child(3) .rk { font-size: 26px; }
+  .hslist .hn { font-weight: 800; font-size: 18px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hslist .ht { font-family: var(--display); font-weight: 800; font-size: 24px; font-variant-numeric: tabular-nums; grid-row: 1 / span 2; grid-column: 3; }
+  .hslist .hx { font-size: 13px; color: var(--soft); font-weight: 700; }
+  .hs-empty { padding: 18px; text-align: center; color: var(--soft); font-weight: 800; background: var(--ground); border-radius: 14px; }
+
   /* summary */
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
   .stat { background: var(--ground); border-radius: 16px; padding: 12px; text-align: center; }
@@ -254,7 +300,8 @@
   </header>
 
   <!-- PLAYERS -->
-  <section id="players" class="arena">
+  <div id="players" class="home">
+  <section class="arena">
     <div class="side kids">
       <h2>Vem spelar?</h2>
       <div class="team-head"><span class="label">Barnen</span><span class="team-total">⭐ <b id="teamStars">0</b></span></div>
@@ -283,6 +330,75 @@
       <div class="sync" id="syncStatus">Hämtar stjärnor…</div>
     </div>
   </section>
+  <div class="quizrow">
+    <button class="big quizbtn" id="quizBtn" type="button"><span class="qi">⏱️</span><span>Förhör<small>120 tal på max 5 min</small></span></button>
+    <button class="big hsbtn" id="hsBtn" type="button"><span class="qi">🏆</span><span>Topplista<small>snabbaste tiderna</small></span></button>
+  </div>
+  </div>
+
+  <!-- QUIZ SETUP -->
+  <section id="quizSetup" class="panel" hidden>
+    <div>
+      <h2>⏱️ Förhör</h2>
+      <p class="muted" style="margin:6px 0 0">Svara rätt på 120 tal så snabbt du kan. Du har max 5 minuter. Blir det fel får du försöka igen.</p>
+    </div>
+    <div>
+      <div class="label" style="margin-bottom:8px">Vilken topplista?</div>
+      <div class="seg" role="group" aria-label="Topplista">
+        <button type="button" class="segbtn" id="catKids" aria-pressed="true">🧒 Barn</button>
+        <button type="button" class="segbtn" id="catAdults" aria-pressed="false">🧑 Vuxen</button>
+      </div>
+    </div>
+    <div>
+      <div class="label" style="margin-bottom:8px">Tabeller – välj minst fem</div>
+      <div class="tables" id="qtables"></div>
+    </div>
+    <div class="row">
+      <button class="chip" id="qselAll" type="button">Välj alla</button>
+      <button class="chip" id="qselNone" type="button">Töm</button>
+    </div>
+    <button class="big quizbtn solo" id="qStart" type="button">Starta förhöret!</button>
+  </section>
+
+  <!-- QUIZ RESULT -->
+  <section id="quizResult" class="panel" hidden>
+    <h2 id="qrTitle">Klart!</h2>
+    <div class="stats">
+      <div class="stat"><span class="label">Tid</span><b id="qrTime">0:00</b></div>
+      <div class="stat"><span class="label">Klara</span><b id="qrDone" style="color:var(--mint)">0</b></div>
+      <div class="stat"><span class="label">Fel</span><b id="qrBad" style="color:var(--coral)">0</b></div>
+    </div>
+    <div class="hs-entry" id="hsEntry" hidden>
+      <div class="hs-entry-title" id="hsEntryTitle">Du kom in på topplistan!</div>
+      <form id="hsForm" class="hs-form">
+        <label for="hsName" class="label">Skriv ditt namn</label>
+        <div class="row">
+          <input id="hsName" type="text" maxlength="16" autocomplete="off" placeholder="Ditt namn" required>
+          <button class="big" type="submit" id="hsSave">Spara</button>
+        </div>
+      </form>
+    </div>
+    <div class="muted" id="qrNote" style="font-weight:700"></div>
+    <div class="row">
+      <button class="big hsbtn" id="qrShowHs" type="button">🏆 Topplistan</button>
+      <button class="big quizbtn" id="qrAgain" type="button">Nytt förhör</button>
+    </div>
+  </section>
+
+  <!-- HIGHSCORES -->
+  <section id="highscores" class="panel" hidden>
+    <h2>🏆 Topplistan</h2>
+    <div class="seg" role="group" aria-label="Välj lista">
+      <button type="button" class="segbtn" id="hsTabKids" aria-pressed="true">🧒 Barn</button>
+      <button type="button" class="segbtn" id="hsTabAdults" aria-pressed="false">🧑 Vuxna</button>
+    </div>
+    <ol class="hslist" id="hsList"></ol>
+    <div class="muted" id="hsNote" style="font-size:14px;font-weight:700"></div>
+    <div class="row">
+      <button class="big quizbtn" id="hsNew" type="button">⏱️ Nytt förhör</button>
+      <button class="ghost" id="hsHome" type="button">Till start</button>
+    </div>
+  </section>
 
   <!-- SETUP -->
   <section id="setup" class="panel" hidden>
@@ -301,13 +417,20 @@
   <!-- GAME -->
   <section id="game" hidden>
     <div style="display:flex;flex-direction:column;gap:14px">
-      <div class="scorebar">
+      <div class="scorebar" id="scorebar">
         <div class="score ok"><span class="label">Rätt</span><b id="okCount">0</b></div>
         <div class="score bad"><span class="label">Fel</span><b id="badCount">0</b></div>
         <div class="score star"><span class="label">Stjärnor</span><b id="starTotal">0</b></div>
       </div>
+      <div class="quizbar" id="quizBar" hidden>
+        <div class="qb-top">
+          <span class="qb-count"><b id="qCount">0</b> / 120</span>
+          <span class="qb-time"><b id="qTime">0:00</b><small>max 5:00</small></span>
+        </div>
+        <div class="qb-track"><span id="qProg"></span><span class="qb-clock" id="qClock"></span></div>
+      </div>
       <div class="panel">
-        <div>
+        <div id="dotsWrap">
           <div class="label" style="margin-bottom:8px">Till nästa stjärna</div>
           <div class="dots" id="dots"></div>
         </div>
@@ -471,6 +594,7 @@ const DATABASE_URL = "https://gangertabell-default-rtdb.europe-west1.firebasedat
     show("setup"); renderTables();
   }
   function goHome() {
+    stopQuiz();
     player = null; $("whoBtn").hidden = true; show("players"); refreshTotals();
   }
   $("homeTitle").onclick = goHome;
@@ -480,7 +604,7 @@ const DATABASE_URL = "https://gangertabell-default-rtdb.europe-west1.firebasedat
     player = null; $("whoBtn").hidden = true; show("players"); refreshTotals();
   };
   function show(id) {
-    ["players", "setup", "game", "summary"].forEach(s => $(s).hidden = s !== id);
+    ["players", "setup", "game", "summary", "quizSetup", "quizResult", "highscores"].forEach(s => $(s).hidden = s !== id);
     $("scorePill").hidden = id === "players";
     updatePill();
   }
@@ -537,6 +661,7 @@ const DATABASE_URL = "https://gangertabell-default-rtdb.europe-west1.firebasedat
     else if (k === "OK") { if (typed) check(); return; }
     else if (typed.length < 3) typed += k;
     drawAnswer();
+    if (quiz && typed.length >= String(current.a * current.b).length) check();
   }
   function drawAnswer(cls) {
     const a = $("answer");
@@ -549,6 +674,7 @@ const DATABASE_URL = "https://gangertabell-default-rtdb.europe-west1.firebasedat
     practiceQueue = queue;
     if (!queue) { ok = 0; bad = 0; streakToTen = 0; stars = 0; wrongs = new Map(); }
     bump("games");
+    setQuizUI(false);
     show("game");
     $("modeTag").textContent = queue
       ? "Övar på felen: " + queue.length + " kvar"
@@ -579,6 +705,7 @@ const DATABASE_URL = "https://gangertabell-default-rtdb.europe-west1.firebasedat
   }
 
   function check() {
+    if (quiz) return quizCheck();
     locked = true;
     const val = parseInt(typed, 10), right = current.a * current.b;
     const fb = $("feedback");
@@ -667,7 +794,7 @@ const DATABASE_URL = "https://gangertabell-default-rtdb.europe-west1.firebasedat
   }
 
   // ---------- end / summary ----------
-  $("endBtn").onclick = () => endGame(false);
+  $("endBtn").onclick = () => { if (quiz) { stopQuiz(); show("quizSetup"); } else endGame(false); };
   function endGame(practiceDone) {
     flush();
     show("summary");
@@ -701,6 +828,221 @@ const DATABASE_URL = "https://gangertabell-default-rtdb.europe-west1.firebasedat
     startGame(q);
   };
   $("againBtn").onclick = () => show("setup");
+
+  // ================= FÖRHÖR (timed quiz) =================
+  const QUIZ_N = 120, QUIZ_MS = 5 * 60 * 1000, HS_MAX = 10;
+  let quiz = null;          // {start, done, bad, tries, timer, cat, tables}
+  let qSelected = new Set(load("gt-quiz-tables", [2, 3, 4, 5, 10]));
+  let qCat = load("gt-quiz-cat", "kids");
+  let hsTab = "kids", lastSaved = null;
+
+  const fmt = ms => {
+    const t = Math.max(0, ms), m = Math.floor(t / 60000), sec = Math.floor(t / 1000) % 60, d = Math.floor(t / 100) % 10;
+    return m + ":" + String(sec).padStart(2, "0") + "," + d;
+  };
+  const fmtShort = ms => { const t = Math.max(0, ms); return Math.floor(t / 60000) + ":" + String(Math.floor(t / 1000) % 60).padStart(2, "0"); };
+
+  function setQuizUI(on) {
+    $("quizBar").hidden = !on; $("scorebar").hidden = on; $("dotsWrap").hidden = on;
+    $("endBtn").textContent = on ? "Avbryt" : "Avsluta";
+  }
+
+  // setup screen
+  const qTablesEl = $("qtables");
+  for (let n = 1; n <= 10; n++) {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "tbl"; b.textContent = n; b.id = "qtbl" + n;
+    b.addEventListener("click", () => { qSelected.has(n) ? qSelected.delete(n) : qSelected.add(n); renderQuizSetup(); });
+    qTablesEl.appendChild(b);
+  }
+  function renderQuizSetup() {
+    for (let n = 1; n <= 10; n++) $("qtbl" + n).setAttribute("aria-pressed", qSelected.has(n));
+    $("catKids").setAttribute("aria-pressed", qCat === "kids");
+    $("catAdults").setAttribute("aria-pressed", qCat === "adults");
+    const missing = 5 - qSelected.size;
+    $("qStart").disabled = missing > 0;
+    $("qStart").textContent = missing > 0 ? "Välj " + missing + " tabell" + (missing === 1 ? "" : "er") + " till" : "Starta förhöret!";
+    save("gt-quiz-tables", [...qSelected]); save("gt-quiz-cat", qCat);
+  }
+  $("catKids").onclick = () => { qCat = "kids"; renderQuizSetup(); };
+  $("catAdults").onclick = () => { qCat = "adults"; renderQuizSetup(); };
+  $("qselAll").onclick = () => { for (let n = 1; n <= 10; n++) qSelected.add(n); renderQuizSetup(); };
+  $("qselNone").onclick = () => { qSelected.clear(); renderQuizSetup(); };
+  function openQuizSetup() {
+    player = null; $("whoBtn").hidden = true;
+    const r = document.documentElement.style;
+    ["--accent", "--accent-shade", "--accent-pale"].forEach(v => r.removeProperty(v));
+    renderQuizSetup(); show("quizSetup");
+  }
+  $("quizBtn").onclick = openQuizSetup;
+  $("qrAgain").onclick = openQuizSetup;
+  $("hsNew").onclick = openQuizSetup;
+  $("hsBtn").onclick = () => openHighscores(qCat);
+  $("qrShowHs").onclick = () => openHighscores(quizLastCat);
+  $("hsHome").onclick = goHome;
+
+  // running
+  let quizLastCat = "kids";
+  $("qStart").onclick = () => {
+    if (qSelected.size < 5) return;
+    quiz = { start: performance.now(), done: 0, bad: 0, tries: 0, cat: qCat, tables: [...qSelected].sort((a, b) => a - b), timer: 0 };
+    quizLastCat = qCat;
+    setQuizUI(true); show("game");
+    $("modeTag").textContent = "Förhör · tabeller " + quiz.tables.join(", ");
+    $("quizBar").classList.remove("hurry");
+    quizNext(); quizTick();
+    quiz.timer = setInterval(quizTick, 100);
+  };
+  function stopQuiz() { if (quiz) { clearInterval(quiz.timer); quiz = null; } }
+  function quizTick() {
+    if (!quiz) return;
+    const el = performance.now() - quiz.start;
+    $("qTime").textContent = fmtShort(el);
+    $("qClock").style.left = Math.min(100, el / QUIZ_MS * 100) + "%";
+    $("quizBar").classList.toggle("hurry", QUIZ_MS - el < 60000);
+    if (el >= QUIZ_MS) finishQuiz(false);
+  }
+  function quizNext() {
+    typed = ""; locked = false; quiz.tries = 0;
+    $("feedback").textContent = ""; $("feedback").className = "feedback";
+    let a, b, key, n = 0;
+    do {
+      const t = quiz.tables[Math.floor(Math.random() * quiz.tables.length)];
+      const f = 1 + Math.floor(Math.random() * 10);
+      [a, b] = Math.random() < 0.5 ? [f, t] : [t, f];
+      key = Math.min(a, b) + "×" + Math.max(a, b);
+    } while (key === lastKey && n++ < 20);
+    lastKey = key; current = { a, b };
+    $("qText").innerHTML = a + ' <span class="op">×</span> ' + b;
+    $("qCount").textContent = quiz.done;
+    $("qProg").style.width = (quiz.done / QUIZ_N * 100) + "%";
+    drawAnswer();
+  }
+  function quizCheck() {
+    locked = true;
+    const val = parseInt(typed, 10), right = current.a * current.b;
+    if (val === right) {
+      quiz.done++;
+      drawAnswer("right");
+      $("qCount").textContent = quiz.done;
+      $("qProg").style.width = (quiz.done / QUIZ_N * 100) + "%";
+      if (quiz.done >= QUIZ_N) { finishQuiz(true); return; }
+      setTimeout(() => { if (quiz) quizNext(); }, 120);
+    } else {
+      quiz.bad++; quiz.tries++;
+      drawAnswer("wrong");
+      const fb = $("feedback");
+      fb.className = "feedback bad";
+      fb.textContent = quiz.tries >= 2 ? current.a + " × " + current.b + " = " + right + " – skriv in det" : "Försök igen!";
+      setTimeout(() => { if (!quiz) return; typed = ""; locked = false; drawAnswer(); }, 450);
+    }
+  }
+
+  // result
+  let pendingResult = null;
+  async function finishQuiz(completed) {
+    const time = Math.round(performance.now() - quiz.start);
+    const res = { time: Math.min(time, QUIZ_MS), done: quiz.done, bad: quiz.bad, cat: quiz.cat, tables: quiz.tables.join(","), completed };
+    stopQuiz();
+    show("quizResult");
+    $("qrTime").textContent = completed ? fmt(res.time) : "5:00";
+    $("qrDone").textContent = res.done + "/" + QUIZ_N;
+    $("qrBad").textContent = res.bad;
+    $("hsEntry").hidden = true; $("qrNote").textContent = "";
+    if (!completed) {
+      $("qrTitle").textContent = "Tiden tog slut! Du hann " + res.done + " av " + QUIZ_N + ".";
+      $("qrNote").textContent = "Du behöver klara alla 120 för att komma på topplistan. Försök igen!";
+      return;
+    }
+    $("qrTitle").textContent = "Klart på " + fmt(res.time) + "! 🎉";
+    confetti();
+    const list = await fetchHs(res.cat);
+    const rank = list.filter(e => e.time <= res.time).length + 1;
+    if (rank <= HS_MAX) {
+      pendingResult = res;
+      $("hsEntryTitle").textContent = "Du kom på plats " + rank + " på " + (res.cat === "kids" ? "barnens" : "de vuxnas") + " topplista! 🏆";
+      $("hsName").value = load("gt-hs-name", "");
+      $("hsSave").disabled = false;
+      $("hsEntry").hidden = false;
+      setTimeout(() => { try { $("hsName").focus(); } catch (e) {} }, 300);
+    } else {
+      $("qrNote").textContent = "Plats 10 på topplistan har " + fmt(list[HS_MAX - 1].time) + ". Nästan!";
+    }
+  }
+  $("hsForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const name = $("hsName").value.trim().slice(0, 16);
+    if (!name || !pendingResult) return;
+    $("hsSave").disabled = true;
+    save("gt-hs-name", name);
+    const entry = { name, time: pendingResult.time, tables: pendingResult.tables, date: new Date().toISOString().slice(0, 10) };
+    const cat = pendingResult.cat;
+    pendingResult = null;
+    let online = false;
+    if (DB) {
+      try {
+        const r = await fetch(DB + "/highscores/" + cat + ".json", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(entry) });
+        online = r.ok;
+      } catch (err) {}
+    }
+    if (!online) {
+      const loc = load("gt-hs-" + cat, []); loc.push(entry); save("gt-hs-" + cat, loc);
+    }
+    lastSaved = entry;
+    openHighscores(cat, online ? "" : (DB ? "Kunde inte spara på nätet just nu – tiden finns bara på den här enheten." : ""));
+  });
+
+  // highscore lists
+  async function fetchHs(cat) {
+    let list = load("gt-hs-" + cat, []);
+    if (DB) {
+      try {
+        const r = await fetch(DB + "/highscores/" + cat + ".json", { cache: "no-store" });
+        if (r.ok) {
+          const data = (await r.json()) || {};
+          const online = Object.values(data).filter(e => e && typeof e.time === "number" && typeof e.name === "string");
+          // keep local-only entries (saved while offline) alongside the online ones
+          const localOnly = list.filter(l => !online.some(o => o.name === l.name && o.time === l.time));
+          list = online.concat(localOnly);
+          save("gt-hs-" + cat, list.slice().sort((a, b) => a.time - b.time).slice(0, 30));
+        }
+      } catch (e) {}
+    }
+    return list.sort((a, b) => a.time - b.time || String(a.date).localeCompare(String(b.date))).slice(0, HS_MAX);
+  }
+  async function openHighscores(cat, note) {
+    hsTab = cat || "kids";
+    show("highscores");
+    $("hsNote").textContent = note || "";
+    await renderHs();
+  }
+  async function renderHs() {
+    $("hsTabKids").setAttribute("aria-pressed", hsTab === "kids");
+    $("hsTabAdults").setAttribute("aria-pressed", hsTab === "adults");
+    const ol = $("hsList");
+    ol.innerHTML = '<li class="hs-empty" style="display:block">Hämtar…</li>';
+    const list = await fetchHs(hsTab);
+    ol.innerHTML = "";
+    if (!list.length) {
+      const li = document.createElement("li"); li.className = "hs-empty"; li.style.display = "block";
+      li.textContent = "Ingen har kommit in på listan än – bli först!";
+      ol.appendChild(li); return;
+    }
+    const medals = ["🥇", "🥈", "🥉"];
+    list.forEach((e, i) => {
+      const li = document.createElement("li");
+      if (lastSaved && e.name === lastSaved.name && e.time === lastSaved.time) li.className = "me";
+      const rk = document.createElement("span"); rk.className = "rk"; rk.textContent = medals[i] || (i + 1);
+      const hn = document.createElement("span"); hn.className = "hn"; hn.textContent = e.name;
+      const ht = document.createElement("span"); ht.className = "ht"; ht.textContent = fmt(e.time);
+      const hx = document.createElement("span"); hx.className = "hx";
+      hx.textContent = "Tabeller " + String(e.tables || "").split(",").join(", ") + (e.date ? " · " + e.date.split("-").reverse().slice(0, 2).join(".") : "");
+      li.append(rk, hn, ht, hx);
+      ol.appendChild(li);
+    });
+  }
+  $("hsTabKids").onclick = () => { hsTab = "kids"; renderHs(); };
+  $("hsTabAdults").onclick = () => { hsTab = "adults"; renderHs(); };
 
   renderPlayers();
   refreshTotals();
