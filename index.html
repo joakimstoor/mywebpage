@@ -244,12 +244,13 @@
   .hslist .hn { font-weight: 800; font-size: 18px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .hslist .ht { font-family: var(--display); font-weight: 800; font-size: 24px; font-variant-numeric: tabular-nums; grid-row: 1 / span 2; grid-column: 3; }
   .hslist .hx { font-size: 13px; color: var(--soft); font-weight: 700; }
+  .hslist li.part .ht { color: var(--soft); font-size: 20px; }
   .hs-empty { padding: 18px; text-align: center; color: var(--soft); font-weight: 800; background: var(--ground); border-radius: 14px; }
 
   /* summary */
-  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
   .stat { background: var(--ground); border-radius: 16px; padding: 12px; text-align: center; }
-  .stat b { display: block; font-family: var(--display); font-size: 36px; line-height: 1.05; font-variant-numeric: tabular-nums; }
+  .stat b { display: block; font-family: var(--display); font-size: clamp(24px, 7vw, 36px); white-space: nowrap; line-height: 1.05; font-variant-numeric: tabular-nums; }
   .total { padding: 14px 16px; border-radius: 16px; background: #FFF4D1; font-weight: 800; text-align: center; font-size: 18px; }
   .wrongs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
   .wrongs li {
@@ -340,7 +341,7 @@
   <section id="quizSetup" class="panel" hidden>
     <div>
       <h2>⏱️ Förhör</h2>
-      <p class="muted" style="margin:6px 0 0">Svara rätt på 120 tal så snabbt du kan. Du har max 5 minuter. Blir det fel får du försöka igen.</p>
+      <p class="muted" style="margin:6px 0 0">Du har 5 minuter på dig att svara rätt på så många av 120 tal som möjligt. Flest rätt vinner – vid lika många rätt vinner den snabbaste. Blir det fel får du försöka igen.</p>
     </div>
     <div>
       <div class="label" style="margin-bottom:8px">Vilken topplista?</div>
@@ -830,7 +831,7 @@ const DATABASE_URL = "https://gangertabell-default-rtdb.europe-west1.firebasedat
   $("againBtn").onclick = () => show("setup");
 
   // ================= FÖRHÖR (timed quiz) =================
-  const QUIZ_N = 120, QUIZ_MS = 5 * 60 * 1000, HS_MAX = 10;
+  const QUIZ_N = 120, QUIZ_MS = 5 * 60 * 1000, HS_MAX = 15;
   let quiz = null;          // {start, done, bad, tries, timer, cat, tables}
   let qSelected = new Set(load("gt-quiz-tables", [2, 3, 4, 5, 10]));
   let qCat = load("gt-quiz-cat", "kids");
@@ -840,6 +841,10 @@ const DATABASE_URL = "https://gangertabell-default-rtdb.europe-west1.firebasedat
     const t = Math.max(0, ms), m = Math.floor(t / 60000), sec = Math.floor(t / 1000) % 60, d = Math.floor(t / 100) % 10;
     return m + ":" + String(sec).padStart(2, "0") + "," + d;
   };
+  // older entries were saved before "done" existed – they all finished 120
+  const doneOf = e => (typeof e.done === "number" ? e.done : QUIZ_N);
+  // ranking: most correct first, then fastest time, then earliest date
+  const better = (a, b) => doneOf(b) - doneOf(a) || a.time - b.time || String(a.date || "").localeCompare(String(b.date || ""));
   const fmtShort = ms => { const t = Math.max(0, ms); return Math.floor(t / 60000) + ":" + String(Math.floor(t / 1000) % 60).padStart(2, "0"); };
 
   function setQuizUI(on) {
@@ -949,16 +954,17 @@ const DATABASE_URL = "https://gangertabell-default-rtdb.europe-west1.firebasedat
     $("qrDone").textContent = res.done + "/" + QUIZ_N;
     $("qrBad").textContent = res.bad;
     $("hsEntry").hidden = true; $("qrNote").textContent = "";
-    if (!completed) {
-      $("qrTitle").textContent = "Tiden tog slut! Du hann " + res.done + " av " + QUIZ_N + ".";
-      $("qrNote").textContent = "Du behöver klara alla 120 för att komma på topplistan. Försök igen!";
-      return;
+    if (completed) {
+      $("qrTitle").textContent = "Alla 120 klara på " + fmt(res.time) + "! 🎉";
+      confetti();
+    } else {
+      $("qrTitle").textContent = "Tiden är slut! Du klarade " + res.done + " av " + QUIZ_N + ".";
     }
-    $("qrTitle").textContent = "Klart på " + fmt(res.time) + "! 🎉";
-    confetti();
+    if (res.done < 1) { $("qrNote").textContent = "Svara rätt på minst ett tal för att komma på topplistan."; return; }
     const list = await fetchHs(res.cat);
-    const rank = list.filter(e => e.time <= res.time).length + 1;
+    const rank = list.filter(e => better(e, res) <= 0).length + 1;
     if (rank <= HS_MAX) {
+      if (!completed) confetti();
       pendingResult = res;
       $("hsEntryTitle").textContent = "Du kom på plats " + rank + " på " + (res.cat === "kids" ? "barnens" : "de vuxnas") + " topplista! 🏆";
       $("hsName").value = load("gt-hs-name", "");
@@ -966,7 +972,9 @@ const DATABASE_URL = "https://gangertabell-default-rtdb.europe-west1.firebasedat
       $("hsEntry").hidden = false;
       setTimeout(() => { try { $("hsName").focus(); } catch (e) {} }, 300);
     } else {
-      $("qrNote").textContent = "Plats 10 på topplistan har " + fmt(list[HS_MAX - 1].time) + ". Nästan!";
+      const last = list[HS_MAX - 1];
+      $("qrNote").textContent = "Plats " + HS_MAX + " på topplistan har " + doneOf(last) + " rätt" +
+        (doneOf(last) === res.done ? " på " + fmt(last.time) : "") + ". Nästan – försök igen!";
     }
   }
   $("hsForm").addEventListener("submit", async e => {
@@ -975,7 +983,7 @@ const DATABASE_URL = "https://gangertabell-default-rtdb.europe-west1.firebasedat
     if (!name || !pendingResult) return;
     $("hsSave").disabled = true;
     save("gt-hs-name", name);
-    const entry = { name, time: pendingResult.time, tables: pendingResult.tables, date: new Date().toISOString().slice(0, 10) };
+    const entry = { name, time: pendingResult.time, done: pendingResult.done, tables: pendingResult.tables, date: new Date().toISOString().slice(0, 10) };
     const cat = pendingResult.cat;
     pendingResult = null;
     let online = false;
@@ -1004,11 +1012,11 @@ const DATABASE_URL = "https://gangertabell-default-rtdb.europe-west1.firebasedat
           // keep local-only entries (saved while offline) alongside the online ones
           const localOnly = list.filter(l => !online.some(o => o.name === l.name && o.time === l.time));
           list = online.concat(localOnly);
-          save("gt-hs-" + cat, list.slice().sort((a, b) => a.time - b.time).slice(0, 30));
+          save("gt-hs-" + cat, list.slice().sort(better).slice(0, 40));
         }
       } catch (e) {}
     }
-    return list.sort((a, b) => a.time - b.time || String(a.date).localeCompare(String(b.date))).slice(0, HS_MAX);
+    return list.sort(better).slice(0, HS_MAX);
   }
   async function openHighscores(cat, note) {
     hsTab = cat || "kids";
@@ -1032,11 +1040,13 @@ const DATABASE_URL = "https://gangertabell-default-rtdb.europe-west1.firebasedat
     list.forEach((e, i) => {
       const li = document.createElement("li");
       if (lastSaved && e.name === lastSaved.name && e.time === lastSaved.time) li.className = "me";
+      if (doneOf(e) < QUIZ_N) li.classList.add("part");
       const rk = document.createElement("span"); rk.className = "rk"; rk.textContent = medals[i] || (i + 1);
       const hn = document.createElement("span"); hn.className = "hn"; hn.textContent = e.name;
-      const ht = document.createElement("span"); ht.className = "ht"; ht.textContent = fmt(e.time);
+      const ht = document.createElement("span"); ht.className = "ht"; ht.textContent = doneOf(e) < QUIZ_N ? doneOf(e) + "/120" : fmt(e.time);
       const hx = document.createElement("span"); hx.className = "hx";
-      hx.textContent = "Tabeller " + String(e.tables || "").split(",").join(", ") + (e.date ? " · " + e.date.split("-").reverse().slice(0, 2).join(".") : "");
+      const d = doneOf(e);
+      hx.textContent = (d >= QUIZ_N ? "Alla 120 rätt" : d + " av 120 rätt") + " · tabeller " + String(e.tables || "").split(",").join(", ") + (e.date ? " · " + e.date.split("-").reverse().slice(0, 2).join(".") : "");
       li.append(rk, hn, ht, hx);
       ol.appendChild(li);
     });
